@@ -6,7 +6,7 @@ http.createServer(function(request, response)
     //http header
     response.writeHead(200, {'Content-type':'text/plain'});
     //send a response to the body of the html
-    response.end("Wouldn't you like to be a pepper too???");
+    response.end("*plays Skyrim entrance scene*");
     
 }).listen(3000);
 
