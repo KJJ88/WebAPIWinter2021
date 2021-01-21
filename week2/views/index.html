@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mongoose Lab Example</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script>
+        function checkForm()
+        {
+            if(document.getElementById("GameTitle").value == "")
+            {
+                event.preventDefault();
+                document.getElementById("err").innerHTML = "Please Enter a Game to Proceed";
+
+            }
+        }
+    </script>
+</head>
+<body>
+    <div id="container">
+        <nav>
+            <a href="index.html">Game Entry</a>
+            <a href="gamelist.html">Game List</a>
+        </nav>
+        <h1>Welcome to the Game Entry Page</h1>
+        <form action="/saveGame" method="POST" onsubmit="checkForm()">
+            <span id="err" style="color:red"></span>
+            <label for="game">Enter Game Title Here</label>
+            <br>
+            <input type="text" name="game" id="GameTitle">
+            <br>
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+</body>
+</html>
