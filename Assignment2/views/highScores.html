@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div id="container">
+        <h1>Game List</h1>
+        <nav>
+            <a href="index.html">Game Entry</a>
+            <a href="#"></a>
+        </nav>
+
+        <script>
+            fetch("/getData").then(function(games)
+            {
+                games.json().then(function(thegames)
+                {
+                    console.log(thegames);
+
+                    for(let game of thegames.game)
+                    {
+                        var gameElement = document.createElement('p');
+                        gameElement.innerHTML = game.game;
+                        document.getElementById("container").appendChild(gameElement);
+                    }
+                });
+            });
+        </script>
+    </div>
+</body>
+</html>
