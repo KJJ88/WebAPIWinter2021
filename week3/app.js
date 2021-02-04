@@ -19,53 +19,93 @@ serv.listen(3000,function(){
 })
 
 var SocketList = {}
-var PlayerList = {}
+//var PlayerList = {}
 
-var Player =function(id){
-    var self = {
+//ADDED WEEK4
+var GameObject = function () 
+{
+    var self = 
+    {
         x:400,
         y:300,
-        id:id,
-        number:Math.floor(Math.random()*10),
-        right:false,
-        left:false,
-        up:false,
-        down:false,
-        speed:10
+        spX:0,//speedx
+        spY:0,//speedy
+        id:""
     }
-    self.updatePosition = function(){
-        //console.log(self.up)
+
+    self.update = function()
+    {
+        self.updatePosition();
+    }
+
+    self.updatePosition = function()
+    {
+        self.x += self.spX;
+        self.y += self.spY;
+    }
+    return self;
+}
+
+var Player = function(id){
+
+    var self = GameObject();
+
+    self.id = id;
+    self.number = Math.floor(Math.random() * 10);
+    self.right = false;
+    self.left = false;
+    self.up = false;
+    self.down = false;
+    self.speed = 10;
+
+    var playerUpdate = self.update;
+
+    self.update = function()
+    {
+        self.updateSpeed();
+        playerUpdate();
+    }
+
+    self.updateSpeed = function()
+    {
         if(self.right)
-        self.x += self.speed
-        if(self.left)
-        self.x -= self.speed
+        {
+            self.spX = self.speed;
+        }
+        else if(self.left)
+        {
+            self.spX = -self.speed;
+        }
+        else
+        {
+            self.spX = 0;
+        }
+
+        //Vertical
         if(self.up)
-        self.y -= self.speed
-        if(self.down)
-        self.y += self.speed
+        {
+            self.spY = -self.speed;
+        }
+        else if(self.down)
+        {
+            self.spY = self.speed;
+        }
+        else
+        {
+            self.spY = 0;
+        }
     }
+
+    Player.list[id] = self;
     return self
 }
 
-io.sockets.on('connection', function(socket){
-    console.log("Socket Connected")
+Player.list = {};
 
-    socket.id = Math.random()
-   // socket.x = 0
-   // socket.y = Math.floor(Math.random()*600)
-   // socket.number = Math.floor(Math.random()*10)
-    //add something to SocketList
-    SocketList[socket.id] = socket
-    
-
-    var player = new Player(socket.id)
-    PlayerList[socket.id] = player
-
-    //disconnection event
-    socket.on('disconnect',function(){
-        delete SocketList[socket.id]
-        delete PlayerList[socket.id]
-    })
+//list of functions for player conenction and movement
+Player.onConnect = function(socket)
+{
+    var player = new Player(socket.id);
 
     //recieves player input
     socket.on('keypress',function(data){
@@ -79,6 +119,52 @@ io.sockets.on('connection', function(socket){
         if(data.inputId === 'right')
             player.right = data.state
     })
+}
+
+Player.onDisconnect = function()
+{
+    delete Player.list[socket.id];
+}
+
+Player.update = function()
+{
+    var pack = []
+   
+    for (var i in Player.list) {
+        var player = Player.list[i]
+        player.update()
+        //console.log(player)
+        pack.push({
+            x: player.x,
+            y: player.y,
+            number:player.number 
+        })
+    }
+
+    return pack;
+}
+
+
+//Connection to game
+io.sockets.on('connection', function(socket){
+    console.log("Socket Connected")
+    socket.id = Math.random()
+   // socket.x = 0
+   // socket.y = Math.floor(Math.random()*600)
+   // socket.number = Math.floor(Math.random()*10)
+    //add something to SocketList
+    SocketList[socket.id] = socket
+
+    Player.onConnect(socket);
+
+    //disconnection event
+    socket.on('disconnect',function(){
+        delete SocketList[socket.id]
+        Player.onDisconnect(socket);
+        
+    })
+
+    
 
     ///Old Examples from Wednesday 1/27
     // socket.on('sendMsg',function(data){
@@ -95,18 +181,9 @@ io.sockets.on('connection', function(socket){
 
 //Setup Update Loop 
 setInterval(function(){
-   var pack = []
-   
-    for (var i in PlayerList) {
-        var player = PlayerList[i]
-        player.updatePosition()
-        //console.log(player)
-        pack.push({
-            x: player.x,
-            y: player.y,
-            number:player.number 
-        })
-    }
+     var pack = Player.update();
+
+
     for (var i in SocketList) {
         var socket = SocketList[i]
         socket.emit('newPositions',pack)
