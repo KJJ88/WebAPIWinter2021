@@ -11,7 +11,7 @@ app.use(bodyParser.urlencoded({extended:true}));
 app.use(express.json());
 
 //makes the connection to the database server
-mongoose.connect("mongodb://localhost:27017/gameEntries",
+mongoose.connect("mongodb://localhost:27017/Scores",
 {useNewUrlParser:true}).then(function() 
 {
     console.log("Connected to MongoDB Database");    
@@ -24,6 +24,7 @@ mongoose.connect("mongodb://localhost:27017/gameEntries",
 require("./models/highScores");
 
 var Score = mongoose.model("highScore");
+
 
 //Basic template code for saving an entry
 /*
@@ -44,10 +45,22 @@ app.post("/saveScore", function(req, res)
     console.log("Request Made");
     console.log(req.body);
 
-    new Score(req.body).save().then(function()
+    new Score
+    ({
+        player: req.body.playerName,
+        score: req.body.playerScore//The only way to my knowlege that req.body works is via the input element which means i cant grab the textcontetn of a span with it
+    }).save().then(function()
     {
         res.redirect("highScores.html");
-    });
+    })
+
+    
+    ;
+
+    // new Score({req}).save().then(function()
+    // {
+        
+    // });
 
 });
 

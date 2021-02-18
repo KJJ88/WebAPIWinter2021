@@ -1,55 +1,47 @@
 var socket = io()
 
-//Sign in related code-----------------------------------
+//Sign in related client code==========================
 var signDiv = document.getElementById('signInDiv')
 var signDivUsername = document.getElementById('signInDiv-username')
-var signDivPassword = document.getElementById('signInDiv-password')
-var signDivSignUp = document.getElementById('signInDiv-signUp')
 var signDivSignIn = document.getElementById('signInDiv-signIn')
+var signDivSignUp = document.getElementById('signInDiv-signUp')
+var signDivPassword = document.getElementById('signInDiv-password')
 var gameDiv = document.getElementById('gameDiv')
-var error = document.getElementById('error')
+var error = document.getElementById('err')
 
-//Add event listeners for sign in buttons
-signDivSignIn.onclick = function () 
-{
-    socket.emit('signIn', {username:signDivUsername.value, password:signDivPassword.value})
+//add event listeners for sign in buttons
+signDivSignIn.onclick = function(){
+    socket.emit('signIn',{username:signDivUsername.value, password:signDivPassword.value})
+}
+signDivSignUp.onclick = function(){
+    socket.emit('signUp',{username:signDivUsername.value, password:signDivPassword.value})
 }
 
-signDivSignUp.onclick = function()
-{
-    socket.emit('signUp', {username:signDivUsername.value, password:signDivPassword.value})
-}
-
-socket.on('signInResponse', function(data)
-{
-    if(data.success)
-    {
-        //log in the user
+socket.on('signInResponse',function(data){
+    if(data.success){
+        //log user in
         signDiv.style.display = "none"
         gameDiv.style.display = "inline-block"
-    }
-    else
-    {
+    }else{
         //alert("Sign in Unsuccessful")
         error.innerHTML = "Sign in Unsuccessful"
     }
-    
+
 })
 
-socket.on('signUpResponse', function(data)
-{
-    if(data.success)
-    {
-        error.innerHTML = "Sign up Success Please Log In"
+socket.on('signUpResponse',function(data){
+    if(data.success){
+        error.innerHTML = "Sign Up Success Please Login"
+    }else{
+        
+        error.innerHTML = "Sign up Unsuccessful"
     }
-    else
-    {
-        error.innerHTML = "Sign Up Unsuccessful"
-    }
+
 })
 
 
-//Game Related Code--------------------------------------
+
+//Game related code====================================
 var canvas = document.getElementById('canvas')
 var ctx = canvas.getContext('2d')
 var chatText = document.getElementById('chat-text')
@@ -57,13 +49,12 @@ var chatInput = document.getElementById('chat-input')
 var chatForm = document.getElementById('chat-form')
 var px = 0
 var py = 0
+var clientId;
 ctx.font = '30px Arial'
 
-
-socket.on('connected', function(data)
-{
-    clientId = data;
-    console.log(clientId);
+socket.on('connected',function(data){
+    clientId = data
+    console.log(clientId)
 })
 
 //event listeners for keypresses and mouse clicks and mouse posiition
@@ -115,16 +106,14 @@ function mouseMove(e){
 socket.on('newPositions', function (data) {
     ctx.clearRect(0, 0, canvas.width, canvas.height)
     for (var i = 0; i < data.player.length; i++) {
-        if(clientId == data.player[i].id)
-        {
+        if(clientId == data.player[i].id){
             px = data.player[i].x
             py = data.player[i].y
         }
-        
         ctx.fillText(data.player[i].number, data.player[i].x, data.player[i].y);
     }
     for (var i = 0; i < data.bullet.length; i++) {
-        ctx.fillRect(data.bullet[i].x, data.bullet[i].y - 10,10,10);
+        ctx.fillRect(data.bullet[i].x + 5, data.bullet[i].y - 10,10,10);
     }
 })
 

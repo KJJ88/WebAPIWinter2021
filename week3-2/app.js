@@ -1,17 +1,16 @@
-//const e = require('express')
 var express = require('express')
 const { setFlagsFromString } = require('v8')
 var app = express()
+var mongoose = require('mongoose')
 var serv = require('http').Server(app)
 var io = require('socket.io')(serv,{})
 var debug = true
-
-var mongoose = require('mongoose')
 
 require('./db')
 require('./models/Player')
 
 var PlayerData = mongoose.model('player')
+
 
 //File Communication===================================
 app.get('/', function(req,res){
@@ -104,12 +103,12 @@ var Player =function(id){
         }
     }
 
-    Playerlist[id] = self
+    Player.list[id] = self
 
     return self
 }
 
-//Player.list = {}
+Player.list = {}
 
 //list of functions for player connection and movement
 Player.onConnect = function(socket){
@@ -149,8 +148,8 @@ Player.update = function(){
         pack.push({
             x: player.x,
             y: player.y,
-            number:player.number ,
-            id:player.id
+            number:player.number,
+            id:player.id 
         })
     }
 
@@ -211,30 +210,48 @@ Bullet.update = function(){
     return pack
 }
 
- var Players = 
- {
-     "Matt":"123",
-     "Rob":"asd",
-     "Ron":"321",
-     "Jay":"ewq"
- }
 
- var isPasswordValid = function(data)
- {
-     console.log(PlayerData.findOne({username:data.username}))
+///====== User Collection setup
+
+var Players = {
+    "Matt":"123",
+    "Rob":"asd",
+    "Ron":"321",
+    "Jay":"ewq",
+}
+
+var isPasswordValid = function(data,cb){
+    PlayerData.findOne({username:data.username},function(err,username){
+        //console.log(username.password, data.password)
+        cb(data.password == username.password)
+    })
+    
+
     //return Players[data.username] === data.password
- }
+}
 
- var isUsernameTaken = function(data)
- {
-     return Players[data.username]
- }
+var isUsernameTaken = function(data, cb){
+    PlayerData.findOne({username:data.username}, function(err, username)
+    {
+        if(username == null)
+        {
+            cb(false);
+        }
+        else
+        {
+            cb(true);
+        }
+    });
+   //return Players[data.username]
+}
 
- var addUser = function(data)
- {
-     //Players[data.username] = data.password
-     new PlayerData(data).save()
- }
+var addUser = function(data){
+    //Players[data.username] = data.password
+    new PlayerData(data).save()
+
+}
+
+
 //Connection to game
 io.sockets.on('connection', function(socket){
     console.log("Socket Connected")
@@ -245,38 +262,56 @@ io.sockets.on('connection', function(socket){
    // socket.number = Math.floor(Math.random()*10)
     //add something to SocketList
     SocketList[socket.id] = socket
+   
+    
 
     //signIn event
-    socket.on('signIn',function(data)
-    {
-        if(isPasswordValid(data))
-        {
-            Player.onConnect(socket)
-            //Send the id to the client
-            socket.emit('connected', socket.id)
-            socket.emit('signInResponse', {success:true})
-        }
-        else
-        {
-            socket.emit('signInResponse', {success:false})
-        }
+    socket.on('signIn',function(data){
         
+        // if(isPasswordValid(data)){
+        //    Player.onConnect(socket)
+        //     //send the id to the client
+        //     socket.emit('connected', socket.id)
+        //     socket.emit('signInResponse',{success:true}) 
+        // }else{
+        //     socket.emit('signInResponse',{success:false}) 
+        // }
+
+        isPasswordValid(data,function(res){
+            if (res) {
+                Player.onConnect(socket)
+                //send the id to the client
+                socket.emit('connected', socket.id)
+                socket.emit('signInResponse', { success: true })
+            } else {
+                socket.emit('signInResponse', { success: false })
+            }
+        })
     })
 
     //signUp event
-    socket.on('signUp',function(data)
-    {
-        if(isUsernameTaken(data))
-        {
-            socket.emit('signUpResponse', {success:false})
-        }
-        else
-        {
-            addUser(data)
-            socket.emit('signUpResponse', {success:true})
-        }
-    })
+    socket.on('signUp',function(data){
+        // if(isUsernameTaken(data)){
+        //     socket.emit('signUpResponse',{success:false}) 
+        // }else{
+        //     
+        //     socket.emit('signUpResponse',{success:true}) 
+        // }
 
+        isUsernameTaken(data, function(res)
+        {
+            if(res)
+            {
+                socket.emit("signUpResponse", {success:false});
+            }
+            else
+            {
+                addUser(data);
+                socket.emit("signUpResponse", {success:true});
+            }
+        })
+    })
+    
     //disconnection event
     socket.on('disconnect',function(){
         delete SocketList[socket.id]

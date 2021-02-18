@@ -14,17 +14,20 @@
         </nav>
 
         <script>
-            fetch("/getData").then(function(games)
+            fetch("/getData").then(function(scores)
             {
-                games.json().then(function(thegames)
+                scores.json().then(function(theScores)
                 {
-                    console.log(thegames);
+                    console.log(theScores);
 
-                    for(let game of thegames.game)
+                    for(let eachScore of theScores.score)
                     {
-                        var gameElement = document.createElement('p');
-                        gameElement.innerHTML = game.game;
-                        document.getElementById("container").appendChild(gameElement);
+                        //Creates paragraph?
+                        var scoreElement = document.createElement('p');
+                        //Sets the innerHTML in this case text of the paragraph
+                        scoreElement.innerHTML = eachScore.score + eachScore.player;
+                        //Appends the paragrahp to the cotainer div
+                        document.getElementById("container").appendChild(scoreElement);
                     }
                 });
             });

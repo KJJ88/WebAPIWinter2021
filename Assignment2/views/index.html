@@ -4,11 +4,36 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Asteroid Avoidance</title>
+
+    <script>
+        function CheckSubmission()
+        {
+            if(document.getElementById("highScoreInput").value == "")
+            {
+                event.preventDefault();
+                document.getElementById("err").innerHTML = "Please Enter a Name to Proceed";
+            }
+            else
+            {
+
+            }
+        }
+    </script>
 </head>
 <body>
+    
+
+    <!--butto-->
     <canvas width="800" height="600" style="border:1px solid black; background-color: black;"></canvas>
-    <form method="#" action="#" class="highscore">
-        <input type="text" placeholder="Enter your name for High Score" style="position:absolute; left:300px; top:400px; width:200px;" />
+    <form method="POST" action="/saveScore" class="highscore" onsubmit="CheckSubmission()">
+
+        <span id="err" style="color:red"></span>
+
+        <input id="gameScore"style="display: none;" name="playerScore">
+
+        <input id="highScoreInput" type="text" placeholder="Enter your name for High Score" style="position:absolute; left:300px; top:400px; width:200px;" 
+            class="inputField" name="playerName"/>
+            
         <button style="position:absolute; left:350px; top:450px; width:100px;">Submit</button>
     </form>
 

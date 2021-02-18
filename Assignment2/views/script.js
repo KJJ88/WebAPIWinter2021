@@ -14,6 +14,10 @@ var bgMain = new Image();
 var cookieSprite = new Image();
 var highScoreElements = document.querySelector('.highscore');
 
+
+var playerInputField = document.querySelector('.inputField');
+
+
 bgMain.src = "images/rocks.jpg";
 cookieSprite.src = "images/cookie.png";
 
@@ -287,6 +291,8 @@ gameStates[1] = function(){
 //---Game Over Screen---
 gameStates[2] = function(){
     highScoreElements.style.display = "block";
+    document.getElementById("gameScore").value = score;
+    console.log(document.getElementById("gameScore").value);
     if(score > highScore){
         highScore = score;
         ctx.save();
@@ -300,6 +306,8 @@ gameStates[2] = function(){
         ctx.fillText("Press Enter to Start", c.width/2, c.height/2 + 20);
         ctx.restore();
 
+        
+
     }
     else{
         ctx.save();
@@ -311,8 +319,9 @@ gameStates[2] = function(){
         ctx.font = "15px Arial";
         ctx.fillText("Press Enter to Start", c.width/2, c.height/2 + 20);
         ctx.restore();
-    }
 
+        
+    }
     
 }
 
