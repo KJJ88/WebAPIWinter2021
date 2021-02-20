@@ -6,10 +6,10 @@
     <title>Document</title>
 </head>
 <body>
-    <div id="container">
-        <h1>Game List</h1>
+    <div id="container" style="align-content: center;">
+        <h1 >High Score List</h1>
         <nav>
-            <a href="index.html">Game Entry</a>
+            <a href="index.html">Play Again</a>
             <a href="#"></a>
         </nav>
 
@@ -20,12 +20,23 @@
                 {
                     console.log(theScores);
 
+                    var scoreArr = [];
+                    var i = 0;
                     for(let eachScore of theScores.score)
+                    {
+                        scoreArr[i] = eachScore;
+                        i++;
+                    }
+
+                    //Array sort with compare function
+                    scoreArr.sort(function(a,b){return b.score-a.score});
+
+                    for(let eachScore of scoreArr)
                     {
                         //Creates paragraph?
                         var scoreElement = document.createElement('p');
                         //Sets the innerHTML in this case text of the paragraph
-                        scoreElement.innerHTML = eachScore.score + eachScore.player;
+                        scoreElement.innerHTML = eachScore.player +"-"+ eachScore.score;
                         //Appends the paragrahp to the cotainer div
                         document.getElementById("container").appendChild(scoreElement);
                     }

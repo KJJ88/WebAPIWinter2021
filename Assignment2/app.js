@@ -55,7 +55,6 @@ app.post("/saveScore", function(req, res)
     })
 
     
-    ;
 
     // new Score({req}).save().then(function()
     // {
