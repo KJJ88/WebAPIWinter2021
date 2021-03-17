@@ -6,7 +6,7 @@ var express = require('express')
 var app = express()
 var mongoose = require('mongoose')
 
-require('./db')
+require('./db')//Hello
 
 var User = mongoose.model('User', {
     playerName:{
