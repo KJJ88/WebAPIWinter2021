@@ -310,7 +310,6 @@ var addUser = function(data)
 }
 
 
-
 // connection to game
 io.sockets.on('connection', function(socket)
 {
