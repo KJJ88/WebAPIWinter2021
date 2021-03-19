@@ -1,44 +1,91 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Player Score List</title>
+
+    <link rel="stylesheet" href="CSS/style.css">
 </head>
+
 <body>
-    <div id="container" style="align-content: center;">
-        <script>
-            fetch("/getData").then(function(data)
-            {
-                data.json().then(function(players)
-                {
-                    console.log(players);
+    <div id="loginDiv">
+        Player Name: <input type="text" id="playNameTxt">
+        Password: <input type="text" id="passTxt">
+        <button id="Login_btn">Login</button>
+    </div>
 
-                    var scoreArr = [];
-                    var i = 0;
-                    for(let eachScore of players.data)
-                    {
-                        scoreArr[i] = eachScore;
-                        i++;
-                    }
+    <div id="mainPageDiv">
+        <div class="div_nav">
+            <nav>
+                <a id="link_delete" href="delete.html">Delete Player Page</a>
+                <a id="link_update" href="update.html">Update Player</a>
+            </nav>
+        </div>
+        <div id="container" class="container">
 
-                    //Array sort with compare function
-                    scoreArr.sort(function(a,b){return b.data-a.data});
+            <script>
+                fetch("/getData").then(function (data) {
+                    data.json().then(function (players) {
+                        console.log(players);
 
-                    for(let eachScore of scoreArr)
-                    {
-                        //Creates paragraph?
-                        var scoreElement = document.createElement('p');
-                        //Sets the innerHTML in this case text of the paragraph
-                        scoreElement.innerHTML = eachScore.playerName +"-"+ eachScore.score;
-                        //Appends the paragrahp to the cotainer div
-                        document.getElementById("container").appendChild(scoreElement);
-                    }
+                        var scoreArr = [];
+                        var i = 0;
+                        for (let eachScore of players.data) {
+                            scoreArr[i] = eachScore;
+                            i++;
+                        }
+
+                        //Array sort with compare function
+                        scoreArr.sort(function (a, b) { return b.data - a.data });
+
+                        for (let eachPlayer of scoreArr) {
+                            //Creates paragraph?
+                            var playerElement = document.createElement('p');
+                            //Sets the innerHTML in this case text of the paragraph
+                            playerElement.innerHTML = eachPlayer.playerName + "-" + eachPlayer.score;
+                            //Appends the paragrahp to the cotainer div
+                            document.getElementById("container").appendChild(playerElement);
+                        }
+                    });
                 });
-            });
-        </script>
 
+                function displayLogic() {
+                    var mainPage = document.getElementById('mainPageDiv')
+                    var loginPage = document.getElementById('loginDiv')
+
+                    loginPage.style.display = 'none'
+                    mainPage.style.display = 'block'
+                }
+
+                displayLogic()
+
+                // var loginBtn = document.getElementById('Login_btn')
+                // loginBtn.addEventListener("click", function login(){
+                //     var nameLogin = document.getElementById('playNameTxt')
+                //     var passLogin = document.getElementById('passTxt')
+
+                //     var loginData = {
+                //         playerName: nameLogin.value,
+                //         password: passLogin.value
+                //     }
+                //     console.log(loginData.playerName+' ' + loginData.password)
+                //     fetch('/login', {playerName: nameLogin, password: passLogin.value }).then(function (data) {
+                //         var mainPage = document.getElementById('mainPageDiv')
+                //         var loginPage = document.getElementById('loginDiv')
+                //         if (data.success) {
+                //             loginPage.style.display = 'none'
+                //             mainPage.style.display = 'block'
+                //         }
+                //     })
+                // })
+                
+
+            </script>
+        </div>
     </div>
 </body>
+
 </html>

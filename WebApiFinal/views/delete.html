@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delete Players</title>
+
+    <link rel="stylesheet" href="CSS/styleDelete.css">
+</head>
+<body>
+    <div class="div_nav">
+        <nav>
+            <a href="index.html">Main Player List</a>
+        </nav>
+    </div>
+    <div id="container" class="container">
+        <script>
+            fetch("/getData").then(function(data)
+            {
+                data.json().then(function(players)
+                {
+                    console.log(players);
+
+                    var scoreArr = [];
+                    var i = 0;
+                    for(let eachScore of players.data)
+                    {
+                        scoreArr[i] = eachScore;
+                        i++;
+                    }
+
+                    //Array sort with compare function
+                    scoreArr.sort(function(a,b){return b.data-a.data});
+
+                    for(let eachPlayer of scoreArr)
+                    {
+                        //Creates paragraph?
+                        var playerElement = document.createElement('p');
+                        //Sets the innerHTML in this case text of the paragraph
+                        playerElement.innerHTML = eachPlayer.playerName +"-"+ eachPlayer.score;
+                        //Appends the paragrahp to the cotainer div
+                        document.getElementById("container").appendChild(playerElement);
+
+                        //add a delete button (not required)
+                        var deleteBtn = document.createElement("button");
+                        deleteBtn.innerText = "Delete";
+                        deleteBtn.addEventListener("click", function deleteGame()
+                        {
+                            fetch("/deletePlayer", {
+                            method:"POST",
+                            headers:{
+                                "Content-Type":"application/json"
+                            },
+                            body:JSON.stringify({
+                                _id:eachPlayer._id
+                            })
+                            
+                        })
+                        location.reload()
+                        });
+                        playerElement.appendChild(deleteBtn);
+                    }
+                });
+            });
+        </script>
+
+    </div>
+</body>
+</html>

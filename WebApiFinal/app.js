@@ -6,10 +6,13 @@ var express = require('express')
 var app = express()
 var mongoose = require('mongoose')
 
-require('./db')//Hello
+require('./db')
 
 var User = mongoose.model('User', {
     playerName:{
+        type:String,
+    },
+    password:{
         type:String,
     },
     score:{
@@ -20,15 +23,6 @@ var User = mongoose.model('User', {
 app.use(express.urlencoded({extended:true}))
 app.use(express.json())
 
-//Get Route to get data from database
-// app.get('/download', function(req, res){
-//     User.find({}).then(function(User){
-//         res.json(User)
-//         console.log(User)
-//     })
-
-    
-// })
 
 app.get('/download', function(req, res){
     User.find({}).then(function(data){
@@ -43,6 +37,7 @@ app.post('/upload', function(req, res){
 
     var newUser = new User({
         playerName:req.body.playerName,
+        password:req.body.password,
         score:req.body.score
     })
 
@@ -65,6 +60,33 @@ app.get("/getData", function(req, res)
 });
 
 
+//Post route to delete the game entry
+app.post("/deletePlayer", function(req, res)
+{
+    console.log("User Deleted", req.body._id)
+    User.findByIdAndDelete(req.body._id).exec()
+    //res.redirect(req.get('referer'));
+    io.emit("refreshPlayerList")
+    
+});
+
+app.post("/updatePlayer", function(req, res){
+    console.log('User Updated New Name: ' + req.body.newName)
+    User.updateOne({_id:req.body._id} , {playerName:req.body.newName}).exec()
+    io.emit("refreshPlayerList")
+})
+
+
+app.get('/login', function(data){
+    console.log(data.playerName+ ' '+ data.password)
+    isPasswordValid(data, function(res){
+        if(res){
+          data.success = true
+        }
+    })
+})
+
+
 app.use(express.static(__dirname+"/views"));
 
 app.listen(5000, function(){
@@ -72,6 +94,15 @@ app.listen(5000, function(){
 })
 
 //Socket Server code------------------------------------------
+
+
+var isPasswordValid = function (data, cb) {
+    if (data.password != null && data.playerName != null) {
+        User.findOne({ playerName: data.playerName }, function (err, playerName) {
+            cb(data.password == playerName.password)
+        })
+    }
+}
 
 console.log('server is running')
 
@@ -83,14 +114,6 @@ io.on('connection', function(socket){
 
     var clientid = shortid.generate()
 
-    // // players.forEach(function(id){
-    // //     if(id == clientid){
-    // //         return
-    // //     }
-    // //     players.push(clientid)
-    // //     socket.broadcast.emit('spawn', {id:clientid})//pass and object to the on socket
-    // // })
-    
     players.push(clientid)
     //I exist so spawn me
     socket.broadcast.emit('spawn', {id:clientid})//tells other connection that the player exists in its own conncetion so spawn it on the originals
@@ -98,18 +121,14 @@ io.on('connection', function(socket){
     //emit to client so logic can be run without other connections
     socket.emit('clientConnection', {id:clientid})
 
-    // //request all existing player positions
-    // socket.broadcast.emit('requestPosition')
-
-    // //players spawn with the newly connected client
-    // // for(var i = 0; i < players.length; i++){
-    // //     if(players[i] == clientid){
-    // //         return
-    // //     }
-
-    // //     socket.emit('spawn')
-    // //     console.log('sending spawn to new player')
-    // // }
+  
+    // socket.on('login', function(data){
+    //     isPasswordValid(data, function(res){
+    //         if(res){
+                
+    //         }
+    //     })
+    // })
 
     socket.on('hello', function(data){
         console.log('Hello from the connected client UNITY')
@@ -146,3 +165,5 @@ io.on('connection', function(socket){
        socket.broadcast.emit('disconnected', {id:clientid})
     })
 })
+
+module.exports = {io}

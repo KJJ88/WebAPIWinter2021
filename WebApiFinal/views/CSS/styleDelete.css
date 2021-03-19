@@ -1,0 +1,15 @@
+.container{
+    margin: auto;
+    align-content: center;
+    width: 250px;
+    border: 3px dotted red;
+    
+}
+.div_nav{
+    margin: auto;
+    width: 124px;
+    border: 2px solid black;
+    margin-top: 5px;
+    margin-bottom: 5px;
+
+}
